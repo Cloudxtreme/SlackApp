@@ -1,36 +1,46 @@
 $(document).ready(function() {
     var socket = io();
-    var input = $('input');
+    var messageBodyInput = $('#messageBody');
+    var userNameInput = $('#userName');
     var messages = $('#messages');
     var userCount = $('#userCount');
 
     var addMessage = function(message) {
-        messages.append('<div>' + message + '</div>');
+        if (!message.userName) {
+            message.userName = "unknown";
+        }
+
+        messages.append('<div><b>' + message.userName + '</b>' + ": " + message.body + '</div>');
+    };
+
+    var addConnectMesage = function(message) {
+        messages.append('<div style="color: red">' + message + '</div>');
     };
 
     var updateUserCount = function(count) {
         userCount.text("Users in Chat: " + count);
     };
 
-    input.on('keydown', function(event) {
+    messageBodyInput.on('keydown', function(event) {
         if (event.keyCode != 13) {
             return;
         }
 
-        var message = input.val();
-        addMessage(message);
-        socket.emit('message', message);
-        input.val('');
+        var body = messageBodyInput.val();
+        var userName = userNameInput.val();
+        addMessage({body: body, userName: userName});
+        socket.emit('message', {body: body, userName: userName});
+        messageBodyInput.val('');
     });
 
     socket.on('message', addMessage);
 
     socket.on('connected', function() {
-        addMessage("User connected");
+        addConnectMesage("User connected");
     });
 
     socket.on('disconnected', function() {
-        addMessage("User disconnected");
+        addConnectMesage("User disconnected");
     });
     
     socket.on('userCount', updateUserCount);

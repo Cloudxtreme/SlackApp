@@ -18,7 +18,7 @@ io.on('connection', function (socket) {
 	socket.broadcast.emit('connected');
 
     socket.on('message', function(message) {
-    	socket.broadcast.emit('message', message);
+    	socket.broadcast.emit('message', {userName: message.userName, body: message.body});
     });
 
     socket.on('disconnect', function() {
